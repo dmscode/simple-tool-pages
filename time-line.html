@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Time line.</title>
+  <style>
+    * {
+      text-shadow: rgba(0, 0, 0, .2) 0 0 0, rgba(0, 0, 0, .1) 0 0 .1px, rgba(0, 0, 0, .05) 0 0 .2px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: #22272b;
+      font-size: 14px;
+      font-family: 'Microsoft YaHei';
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #content {
+      position: absolute;
+      z-index: 1;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-content: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    #content > .progress-box {
+      width: 96%;
+      max-width: 100vmin;
+      display: flex;
+      align-content: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, .8);
+      position: relative;
+    }
+    #content > .progress-box > #main-progress {
+      width: 100%;
+      height: 4px;
+      background: rgba(0, 0, 0, .3);
+      border: 1px solid rgba(0, 0, 0, .6);
+      border-radius: 3px;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, .3);
+      position: relative;
+    }
+    #content > .progress-box > #main-progress::before {
+      content: '';
+      position: absolute;
+      z-index: 99;
+      left: 0;
+      top: -10px;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid rgb(255, 59, 75); 
+      height: 0px;
+      width: 0px;
+    }
+
+    #content > .progress-box > #events-button {
+      position: absolute;
+      top: -128px;
+      display: flex;
+    }
+    #content > .progress-box > #events-button > .button {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      border: 2px solid rgba(255, 255, 255, .6);
+      border-radius: 18px;
+      margin: 0 8px;
+      cursor: pointer;
+    }
+    #content > .progress-box > #events-button > .button::before {
+      content: attr(data-per);
+      position: absolute;
+      bottom: -1.6rem;
+      width: 100%;
+      text-align: center;
+      font-size: 1rem;
+      line-height: 1.2rem;
+      color: rgba(255, 255, 255, .6);
+    }
+    #content > .progress-box > #really {
+      position: absolute;
+      top: -200px;
+      display: none;
+      opacity: 0;
+      transition: opacity 1s;
+    }
+    #content > .progress-box > #really > .button {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      border: 2px solid rgba(255, 255, 255, .6);
+      border-radius: 18px;
+      margin: 0 8px;
+      cursor: pointer;
+      text-align: center;
+      line-height: 36px;
+      font-size: 2rem;
+    }
+    #content > .progress-box > #main-progress > .progress-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 10vw;
+      height: 4px;
+      border-radius: 2px;
+      box-shadow: inset -1px 1px 1px 1px rgba(255, 255, 255, .3);
+    }
+    #content > .progress-box > #main-progress > .progress-bar::before {
+      content: attr(data-time);
+      position: absolute;
+      z-index: 99;
+      right: 0;
+      bottom: -18px;
+      text-align: center;
+      font-size: 12px;
+      color: rgba(255, 255, 255, .6);
+      font-weight: 200;
+      text-shadow: rgba(0, 0, 0, .8) 0 0 1px;
+    }
+    .bg-blue { background: rgb(59, 128, 255); }
+    .bg-yellow { background: rgb(255, 209, 59); }
+    .bg-green { background: rgb(154, 255, 59); }
+    .bg-red { background: rgb(255, 59, 75); }
+  </style>
+</head>
+<body>
+  <div id="content">
+    <div class="progress-box">
+      <div id="events-button">
+        <div class="button bg-blue" id="blue"></div>
+        <div class="button bg-yellow" id="yellow"></div>
+        <div class="button bg-green" id="green"></div>
+        <div class="button bg-red" id="red"></div>
+      </div>
+      <div id="really"><div class="button">?</div></div>
+      <div id="main-progress">
+        
+      </div>
+    </div>
+    <style></style>
+  </div>
+  <script>
+    window.onload = ()=>{
+      // 数据对象
+      const timeLineData = {}
+      const colorName = ['bg-blue', 'bg-yellow', 'bg-green', 'bg-red']
+      // 补零函数
+      const addZero = (num)=>{ return num<10 ? '0'+num : num }
+      // 获取当前时间对象
+      const getDateObject = ()=>{
+        const nowTime = new Date()
+        const year = nowTime.getFullYear()
+        const month = nowTime.getMonth()
+        const monthDouble = addZero(month)
+        const date = nowTime.getDate()
+        const dateDouble = addZero(date)
+        const hour = nowTime.getHours()
+        const hourDouble = addZero(hour)
+        const minute = nowTime.getMinutes()
+        const minuteDouble = addZero(minute)
+        const second = nowTime.getSeconds()
+        const secondDouble = addZero(second)
+        const pass = (nowTime.getTime() - nowTime.getTimezoneOffset()*60000)%(24*60*60*1000)/1000
+        return {
+          nowTime,
+          year,
+          month,
+          monthDouble,
+          date,
+          hour,
+          hourDouble,
+          minute,
+          minuteDouble,
+          second,
+          secondDouble,
+          pass,
+        }
+      }
+      // 保存数据
+      const saveData = ()=>{
+        localStorage.setItem('todayTimeLine', JSON.stringify(timeLineData) )
+      }
+      // 重置数据对象方法
+      const resetData = ()=>{
+        const today = getDateObject()
+        timeLineData.dateTag = today.year+'-'+today.monthDouble+'-'+today.dateDouble
+        timeLineData.eventPoints = [
+          {
+            time: '08:00',
+            pass: 0.25,
+            type: 1
+          },
+          {
+            time: '12:00',
+            pass: 0.5,
+            type: 2
+          }
+        ]
+      }
+      resetData()
+      // 初始化数据对象
+      if(localStorage.getItem('todayTimeLine')) {
+        const tempData = JSON.parse( localStorage.getItem('todayTimeLine') )
+        if(tempData.dateTag === timeLineData.dateTag){
+          timeLineData.eventPoints = tempData.eventPoints
+        }
+      }
+      saveData()
+      // 解析数据对象
+      const toShowTimeLine = ()=>{
+        let htmlCode = ''
+        const eventPoints = timeLineData.eventPoints
+        const eventsPer = [0, 0, 0, 0]
+        for(let i=0; i<eventPoints.length; i++){
+          const event = eventPoints[i]
+          htmlCode += '<div class="progress-bar '+colorName[event.type]+'" style="width: '+(document.getElementById('main-progress').offsetWidth * event.pass)+'px; z-index: '+(eventPoints.length-i+1)+'" data-time="'+event.time+'"></div>'
+          eventsPer[event.type] += i===0 ? event.pass : event.pass-eventPoints[i-1].pass
+        }
+        document.getElementById('main-progress').innerHTML = htmlCode
+        document.querySelectorAll('#events-button>.button').forEach((el, index)=>{
+          el.dataset.per = (eventsPer[index]*100).toFixed(0)+'%'
+        })
+      }
+      toShowTimeLine()
+      // 时间更新
+      const refreshTime = ()=>{
+        const today = getDateObject()
+        const progressLong = document.getElementById('main-progress').offsetWidth * (today.pass/(24*60*60)) - 6
+        document.querySelector('#content>style').innerHTML = '#content > .progress-box > #main-progress::before { left: '+progressLong+'px }'
+      }
+      refreshTime()
+      window.setInterval(refreshTime, 15000)
+      // 隐藏确认按钮
+      const hideConfirm = ()=>{
+        document.getElementById('really').style.opacity = 0
+        window.setTimeout(()=>{document.getElementById('really').style.display = 'none'},1000)
+      }
+      // 确认添加函数
+      const confirmDo = (point)=>{
+        const autoClose = window.setTimeout(hideConfirm, 3000)
+        document.getElementById('really').style.display = 'flex'
+        document.getElementById('really').style.opacity = 1
+        document.querySelector('#really>.button').addEventListener('click', ()=>{
+          hideConfirm()
+          window.clearTimeout(autoClose)
+          timeLineData.eventPoints.push(point)
+          saveData()
+          toShowTimeLine()
+        })
+      }
+      // 添加事件监听
+      document.querySelectorAll('#events-button>.button').forEach((el, index)=>{
+          el.addEventListener('click', (event)=>{
+            const today = getDateObject()
+            const point = {
+              time: today.hourDouble+':'+today.minuteDouble,
+              pass: +(today.pass/(24*60*60)).toFixed(4),
+              type: index
+            }
+            confirmDo(point)
+          })
+        })
+    }
+  </script>
+</body>
+</html>
