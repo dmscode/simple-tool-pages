@@ -194,18 +194,7 @@
       const resetData = ()=>{
         const today = getDateObject()
         timeLineData.dateTag = today.year+'-'+today.monthDouble+'-'+today.dateDouble
-        timeLineData.eventPoints = [
-          {
-            time: '08:00',
-            pass: 0.25,
-            type: 1
-          },
-          {
-            time: '12:00',
-            pass: 0.5,
-            type: 2
-          }
-        ]
+        timeLineData.eventPoints = []
       }
       resetData()
       // 初始化数据对象
