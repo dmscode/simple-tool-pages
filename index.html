@@ -35,7 +35,7 @@
     #content > .progress-box {
       width: 100%;
       display: flex;
-      align-content: center;
+      align-items: center;
       justify-content: center;
       color: rgba(255, 255, 255, .8);
       padding-bottom: 4px;
@@ -156,7 +156,7 @@
       const ctx = starsCanvas.getContext('2d');
       let starsCount = 0
       const starsCountWanted = Number(window.innerWidth * window.innerHeight / 1000).toFixed(0)
-      // 花杂色的函数，我们管杂色叫星星
+      // 画杂色的函数，我们管杂色叫星星
       const drawStar = ()=>{
         if(starsCount<+starsCountWanted){
           const x = Number(Math.random()*window.innerWidth).toFixed(0)
@@ -165,9 +165,12 @@
           ctx.arc(x, y, .5, 0, Math.PI*2, true)
           ctx.lineWidth = 0
           ctx.strokeStyle = "rgba(255, 255, 255, 0)"
-          ctx.fillStyle = "rgba(255, 255, 255, .3)"
+          ctx.fillStyle = "rgba(255, 255, 255, .15)"
           ctx.fill()
           starsCount++
+          window.setTimeout(drawStar, 25)
+        }else{
+          console.log('Stars are drawed!')
         }
       }
       // 时间更新函数
@@ -212,10 +215,10 @@
         }
       }
       // 启动
+      // drawStar()
       refreshProgress()
       // 定时更新任务
       window.setInterval(()=>{
-        drawStar()
         refreshProgress()
       }, 1000)
       // 窗口尺寸变化重新画
