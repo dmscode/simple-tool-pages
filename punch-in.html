@@ -33,7 +33,9 @@
     const link = document.getElementById('link')
     const img = document.getElementById('show')
     const ctx = canvas.getContext('2d')
-    const events = ['计划完成', '今日复盘', '明日规划']
+    const events = ['计划完成', '书籍阅读', '朗诵练习', '写作日更', '今日复盘', '明日规划']
+    const startY = 200
+    const cardHeight = 308+64*events.length
 
     const showImg = (now=Date.now())=>{
       canvas.toBlob(function (blobObj) {
@@ -46,7 +48,7 @@
     let bgData
     const drawBg = ()=>{
       const w = canvas.width = 800
-      const h = canvas.height = 500
+      const h = canvas.height = cardHeight
       ctx.fillStyle = '#fbfadf'
       ctx.fillRect(0, 0, w, h)
       for(let i=0; i<10000; i++){
@@ -107,7 +109,6 @@
     }
 
     let timer
-    const startY = 200
     document.querySelectorAll('.event').forEach( (e)=>{
       e.addEventListener('keyup',()=>{
         window.clearTimeout(timer)
