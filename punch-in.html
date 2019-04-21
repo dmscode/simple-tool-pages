@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Punch in.</title>
+  <style>
+    #canvas {
+      display: none;
+    }
+    #show {
+      display: block;
+      margin: 10px auto;
+      width: 30%;
+      min-width: 320px;
+    }
+    #input {
+      text-align: center;
+    }
+    </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <a href="#" id="link">
+    <img src="src/Coffee-Time.png" id="show">
+  </a>
+  <div id="input">
+
+  </div>
+  <script>
+    const canvas = document.getElementById('canvas')
+    const link = document.getElementById('link')
+    const img = document.getElementById('show')
+    const ctx = canvas.getContext('2d')
+    const events = ['计划完成', '今日复盘', '明日规划']
+
+    const showImg = (now=Date.now())=>{
+      canvas.toBlob(function (blobObj) {
+        link.href = window.URL.createObjectURL(blobObj)
+        link.download = 'Punch-in-'+now+'.png'
+      })
+      img.src = canvas.toDataURL("image/png")
+    }
+
+    let bgData
+    const drawBg = ()=>{
+      const w = canvas.width = 800
+      const h = canvas.height = 500
+      ctx.fillStyle = '#fbfadf'
+      ctx.fillRect(0, 0, w, h)
+      for(let i=0; i<10000; i++){
+        const sx = +(Math.random() * (w+400) - 200).toFixed(0)
+        const sy = +(Math.random() * (h+400) - 200).toFixed(0)
+        let ex = +(Math.random() * (w+400) - 200).toFixed(0)
+        let ey = +(Math.random() * (h+400) - 200).toFixed(0)
+        ex = Math.abs(ex-sx)>50 ? (ex<sx ? sx-Math.random()*50 : sx+Math.random()*50) : ex
+        ey = Math.abs(ey-sy)>50 ? (ey<sy ? sy-Math.random()*50 : sy+Math.random()*50) : ey
+        ctx.beginPath()
+        ctx.moveTo(sx, sy)
+        ctx.lineTo(ex, ey)
+        ctx.lineWidth = 1.0
+        ctx.strokeStyle = 'rgba(209, 162, 80, '+(Math.random()/3).toFixed(2)+')'
+        ctx.stroke()
+      }
+      for(let i=0; i<80000; i++){
+        const sx = +(Math.random() * w).toFixed(0)
+        const sy = +(Math.random() * h).toFixed(0)
+        ctx.beginPath()
+        ctx.arc(sx, sy, 1, 0, Math.PI*2, true)
+        ctx.fillStyle = i%2 ? 'rgba(209, 162, 80, '+(Math.random()/3).toFixed(2)+')' : 'rgba(251, 250, 233, '+Math.random().toFixed(2)+')'
+        ctx.fill()
+      }
+      const k = 50
+      for(let i=0; i<w; i++){
+        for(let j=0; j<h; j++){
+          if(i<k || w-i<k || j<k || h-j<k){
+            const xProbability = k - (i<k ? i : w-i)
+            const yProbability = k - (j<k ? j : h-j)
+            const Probability = (xProbability>yProbability ? xProbability : yProbability)/k
+            if(Probability>Math.random()*2){
+              ctx.beginPath()
+              ctx.arc(i, j, 1, 0, Math.PI*2, true)
+              ctx.fillStyle = 'rgba(209, 162, 80, .2)'
+              ctx.fill()
+            }
+          }
+        }
+      }
+
+      ctx.font = "Bold 72px 'Source Han Sans CN'"
+      ctx.textAlign = "center"
+      ctx.fillStyle = "rgba( 48, 48, 36, .8 )"
+      ctx.fillText("手帐打卡", 400, 120)
+
+      ctx.fillStyle = "rgba( 48, 48, 36, .6 )"
+      ctx.fillRect(200, 132, 400, 48)
+
+      bgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      showImg()
+    }
+    drawBg()
+
+    document.getElementById('input').innerHTML = ''
+    for(const event of events){
+      document.getElementById('input').innerHTML +=event+'：<input class="event" type="number" min=0 max=100 value=0></input><br>'
+    }
+
+    let timer
+    const startY = 200
+    document.querySelectorAll('.event').forEach( (e)=>{
+      e.addEventListener('keyup',()=>{
+        window.clearTimeout(timer)
+        timer = window.setTimeout(()=>{
+          ctx.putImageData(bgData, 0, 0)
+
+          const nowTime = new Date()
+          const doubleNumber = (a)=>{ return a<10 ? '0'+a : a }
+          const year = nowTime.getFullYear()
+          const month = doubleNumber( nowTime.getMonth()+1 )
+          const date = doubleNumber( nowTime.getDate() )
+
+          const hour   = doubleNumber(nowTime.getHours())
+          const minute = doubleNumber(nowTime.getMinutes())
+          const second = doubleNumber(nowTime.getSeconds())
+
+          const now = year+'-'+month+'-'+date+' '+hour+':'+minute+':'+second
+
+          ctx.font = "normal 32px 'Source Han Sans CN'"
+          ctx.textAlign = "center"
+          ctx.fillStyle = '#fffadf'
+          ctx.fillText(now, 400, 167)
+
+          const eventsData = []
+          document.querySelectorAll('.event').forEach( (el)=>{
+            eventsData.push(el.value)
+          } )
+
+          for(let i=0; i<events.length; i++){
+            ctx.font = "Normal 36px 'Source Han Sans CN'"
+            ctx.fillStyle = "rgba( 48, 48, 36, .8 )"
+            ctx.textAlign = "left"
+            ctx.fillText(events[i]+'：', 80, startY+(i+1)*64)
+
+            ctx.font = "Normal 18px 'Source Han Sans CN'"
+            let leftText = ''
+            const complete = +((+eventsData[i])/5).toFixed(0)
+            for(let j=0; j<20; j++){
+              leftText += j<complete ? '▓' : '░'
+            }
+            ctx.fillText(leftText, 260, startY-5+(i+1)*64)
+
+            ctx.font = "Normal 36px 'Source Han Sans CN'"
+            ctx.textAlign = "right"
+            let right = ''
+            if(+eventsData[i] === 0){
+              ctx.fillStyle = "rgba( 166, 0, 0, .8 )"
+              right = 'GuGu'
+            }else if(+eventsData[i] === 100){
+              ctx.fillStyle = "rgba( 0, 166, 0, .8 )"
+              right = 'Done'
+            }else{
+              ctx.fillStyle = "rgba( 0, 0, 166, .8 )"
+              right = +eventsData[i]<10 ? '0'+eventsData[i]+'%' : eventsData[i]+'%'
+            }
+            ctx.fillText(right, canvas.width-80, startY+(i+1)*64)
+          }
+
+          showImg(now)
+        }, 500)
+      })
+    })
+  </script>
+</body>
+</html>
