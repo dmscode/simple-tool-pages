@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Coffee Time.</title>
+  <style>
+    #can {
+      display: none;
+    }
+    #show {
+      display: block;
+      margin: 10px auto;
+      width: 30%;
+      min-width: 320px;
+    }
+    #words {
+      display: block;
+      margin: 10px auto;
+      width: 60%;
+      min-width: 480px;
+      height: 320px;
+      padding: 20px;
+      font-size: 24px;
+      font-family: '楷体';
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="can"></canvas>
+  <a href="#" id="link">
+    <img src="src/Coffee-Time.png" id="show">
+  </a>
+
+  <textarea id="words"></textarea>
+  <script>
+    const input = document.getElementById('words')
+    const canvas = document.getElementById('can')
+    const link = document.getElementById('link')
+    const img = document.getElementById('show')
+    const ctx = canvas.getContext('2d')
+
+    const image = new Image()
+    let imageData
+    image.onload = function() {
+        canvas.width = image.width
+        canvas.height = image.height
+        ctx.drawImage(image, 0, 0)
+        ctx.font = "80px 楷体"
+        ctx.textAlign = "center"
+        ctx.fillStyle = "#05316E"
+        ctx.shadowBlur = 1.2
+        ctx.shadowColor = "rgba(5, 49, 112, .2)"
+        imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    }
+    image.src = "src/Coffee-Time.png"
+
+    const startX = 960
+    const startY = 534
+    const lineHeight = 100
+
+    let timer
+    input.addEventListener('keyup',()=>{
+      window.clearTimeout(timer)
+      timer = window.setTimeout(()=>{
+        ctx.putImageData(imageData, 0, 0)
+
+        const words = input.value.split(/\n/g)
+        let x = startX
+        let y = startY
+        for(const word of words){
+          ctx.fillText(word, x, y)
+          y += lineHeight
+        }
+        canvas.toBlob(function (blobObj) {
+          link.href = window.URL.createObjectURL(blobObj)
+          link.download = 'Coffee-Time.png'
+        })
+        img.src = canvas.toDataURL("image/png")
+      }, 500)
+    })
+  </script>
+</body>
+</html>

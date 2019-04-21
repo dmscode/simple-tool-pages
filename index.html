@@ -174,8 +174,8 @@
         }
       }
       // 时间更新函数
-      const refreshProgress = ()=>{
-        const nowTime = new Date()
+      const refreshProgress = (time)=>{
+        const nowTime = new Date(time)
         const year = nowTime.getFullYear()
         const yearLong = new Date(year+1,0,1) - new Date(year,0,1)
         const month = nowTime.getMonth()
@@ -216,11 +216,21 @@
       }
       // 启动
       // drawStar()
-      refreshProgress()
       // 定时更新任务
-      window.setInterval(()=>{
-        refreshProgress()
-      }, 1000)
+      let time
+      decodeURIComponent(vars.time).replace( /^\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}$/, (m)=>{ time = m } )
+      if(time){
+        const timeArray = time.split(/-| |:/g)
+        time = Date.UTC(timeArray[0], timeArray[1], timeArray[2], timeArray[3], timeArray[4])+(new Date()).getTimezoneOffset()*60000
+        refreshProgress(time)
+      }else{
+        time = Date.now()
+        refreshProgress(time)
+        window.setInterval(()=>{
+          refreshProgress(time)
+        }, 1000)
+      }
+      
       // 窗口尺寸变化重新画
       window.onresize = ()=>{
         starsCanvas.width = window.innerWidth
