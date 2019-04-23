@@ -33,7 +33,8 @@
     const link = document.getElementById('link')
     const img = document.getElementById('show')
     const ctx = canvas.getContext('2d')
-    const events = ['计划完成', '书籍阅读', '朗诵练习', '写作日更', '今日复盘', '明日规划']
+    // const events = ['计划完成', '书籍阅读', '朗诵练习', '写作日更', '今日复盘', '明日规划']
+    const events = decodeURIComponent(window.location.hash.replace(/^#/, '')).split('|')
     const startY = 200
     const cardHeight = 308+64*events.length
 
