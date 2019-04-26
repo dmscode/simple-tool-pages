@@ -163,6 +163,9 @@
             }else if(+eventsData[i] === 100){
               ctx.fillStyle = "rgba( 0, 166, 0, .8 )"
               right = 'Done'
+            }else if(+eventsData[i] > 100){
+              ctx.fillStyle = "rgba( 188, 33, 33, .8 )"
+              right = eventsData[i]+'%'
             }else{
               ctx.fillStyle = "rgba( 0, 0, 166, .8 )"
               right = +eventsData[i]<10 ? '0'+eventsData[i]+'%' : eventsData[i]+'%'
