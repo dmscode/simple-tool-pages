@@ -6,6 +6,9 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Coffee Time.</title>
   <style>
+    body {
+      text-align: center;
+    }
     #can {
       display: none;
     }
@@ -30,9 +33,8 @@
 </head>
 <body>
   <canvas id="can"></canvas>
-  <a href="#" id="link">
-    <img src="src/Coffee-Time.png" id="show">
-  </a>
+  <img src="src/Coffee-Time.png" id="show">
+  【<a href="#" id="link">= 点此下载图片 =</a>】
 
   <textarea id="words"></textarea>
   <script>
@@ -45,8 +47,8 @@
     const image = new Image()
     let imageData
     image.onload = function() {
-        canvas.width = image.width
-        canvas.height = image.height
+        w = canvas.width = image.width
+        h = canvas.height = image.height
         ctx.drawImage(image, 0, 0)
         ctx.font = "80px 楷体"
         ctx.textAlign = "center"
@@ -54,6 +56,7 @@
         ctx.shadowBlur = 1.2
         ctx.shadowColor = "rgba(5, 49, 112, .2)"
         imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+
     }
     image.src = "src/Coffee-Time.png"
 

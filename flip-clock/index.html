@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Flip Clock.</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    @font-face {
+      font-family: 'clock-number';
+      src:url('clock-number.ttf');
+    }
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+      background-color: #26323B;
+      background-color: black;
+      font-family: 'clock-number';
+      font-size: 16vw;
+    }
+    .short {
+      font-size: 25vw;
+    }
+    .short > #clock > #sec,
+    .short > #clock > #min-sec {
+      display: none
+    }
+    #clock {
+      display: flex;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: nowrap;
+      color: #FCFCFD;
+    }
+    #clock > * {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: nowrap;
+    }
+    #clock > .sep {
+      width: 0.25rem;
+    }
+    #clock .num {
+      position: relative;
+      width: 0.625rem;
+      height: 1rem;
+      margin: 0.0625rem;
+      perspective: 6.25rem;
+    }
+    #clock .num::before,
+    #clock .num::after,
+    #clock .num>.card {
+      position: absolute;
+      z-index: 3;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      box-sizing: border-box;
+      overflow: hidden;
+      line-height: 1rem;
+      text-align: center;
+      text-shadow: 0 0 5px rgba(0, 0, 0, .3);
+      background: #232326;
+      border: 1px solid #48484C;
+      border-radius: 12px 12px 6px 6px;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, .3);
+    }
+    #clock .num::before {
+      content: attr(data-num-top);
+    }
+    #clock .num::after {
+      content: attr(data-num-bottom);
+    }
+    #clock .num::after,
+    #clock .num>.card-bottom {
+      bottom: 0;
+      /* height: 8vw; */
+      line-height: 0;
+      border-radius: 6px 6px 12px 12px;
+    }
+    #clock .num>.card {
+      display: none;
+      z-index: 10;
+      transform-origin: bottom center;
+    }
+    #clock .num>.card-bottom {
+      transform-origin: top center;
+    }
+    #clock .num>.mask {
+      position: absolute;
+      z-index: 5;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+    }
+    #clock .num>.mask::before,
+    #clock .num>.mask::after {
+      content: ' ';
+      position: absolute;
+      z-index: -1;
+      left: 1px;
+      bottom: -2px;
+      width: calc(100% - 4px);
+      height: 6px;
+      /* background: #232326; */
+      border: 1px solid #36363A;
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, .3);
+    }
+    #clock .num>.mask::after {
+      z-index: 1;
+      bottom: -4px;
+      border: 1px solid #232326;
+      border-top: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="clock">
+    <div id="hour">
+      <div class="num"><div class="card"></div><div class="mask"></div></div>
+      <div class="num"><div class="card"></div><div class="mask"></div></div>
+    </div>
+    <div id="hour-min" class="sep">:</div>
+    <div id="min">
+      <div class="num"><div class="card"></div><div class="mask"></div></div>
+      <div class="num"><div class="card"></div><div class="mask"></div></div>
+    </div>
+    <div id="min-sec" class="sep">:</div>
+    <div id="sec">
+      <div class="num"><div class="card"></div><div class="mask"></div></div>
+      <div class="num"><div class="card"></div><div class="mask"></div></div>
+    </div>
+  </div>
+  <script>
+    window.onload = function(){
+      let isShort = false
+      if(window.location.hash === '#short'){
+        document.querySelector('html').classList.add('short')
+        document.body.classList.add('short')
+        isShort = true
+      }
+      const oldTime = new Object()
+      const numChange = function(elSelector, newNum){
+        const oldNum = document.querySelector(elSelector).getAttribute('data-num-top')
+        document.querySelector(elSelector+'>.card').innerText = oldNum
+        document.querySelector(elSelector+'>.card').style.display = 'block'
+        document.querySelector(elSelector).setAttribute('data-num-top', newNum)
+        // 动画
+        let animateTime = null
+        const flipAnimate = (timestamp)=>{
+          if (!animateTime) animateTime = timestamp
+          const progress = timestamp - animateTime
+          const animateLong = 600
+          const cardHeight = document.querySelector(elSelector).offsetHeight
+          if(progress<animateLong/2){
+            const topProgress = 2*progress/animateLong
+            const maskPoint = Math.cos(topProgress*Math.PI/2)
+            document.querySelector(elSelector+'>.card').style.transform = 'rotateX('+(-90*topProgress)+'deg)'
+            document.querySelector(elSelector+'>.mask').style.background = 'linear-gradient(rgba(0,0,0,'+(1-topProgress)+') 0%, '+(maskPoint>1 ? 0 : 50-50*maskPoint)+'%, rgba(0,0,0,.8) 50%, transparent 50%)'
+          }else{
+            if(!document.querySelector(elSelector+'>.card').classList.contains('card-bottom')){
+              document.querySelector(elSelector+'>.card').innerText = newNum
+              document.querySelector(elSelector+'>.card').classList.add('card-bottom')
+            }
+            const bottomProgress = 2-2*progress/animateLong
+            const maskPoint = Math.cos(bottomProgress*Math.PI/2)
+            document.querySelector(elSelector+'>.card').style.transform = 'rotateX('+90*bottomProgress+'deg)'
+            document.querySelector(elSelector+'>.mask').style.background = 'linear-gradient(transparent 50%, rgba(0,0,0,.8) 50%, '+(maskPoint>1 ? 0 : 50+50*maskPoint)+'%, rgba(0,0,0,'+(1-bottomProgress)+') 100%)'
+          }
+          if (progress < animateLong) {
+            window.requestAnimationFrame(flipAnimate);
+          }else{
+            document.querySelector(elSelector).setAttribute('data-num-bottom', newNum)
+            document.querySelector(elSelector+'>.mask').style.background = ''
+            document.querySelector(elSelector+'>.card').style.display = ''
+            document.querySelector(elSelector+'>.card').classList.remove('card-bottom')
+          }
+        }
+        window.requestAnimationFrame(flipAnimate)
+      }
+      const timerChecker = function(){
+        const newTime = new Object()
+        const now = new Date()
+        newTime.hour = now.getHours()<10 ? '0'+now.getHours() : ''+now.getHours()
+        newTime.min = now.getMinutes()<10 ? '0'+now.getMinutes() : ''+now.getMinutes()
+        if(!isShort){
+          newTime.sec = now.getSeconds()<10 ? '0'+now.getSeconds() : ''+now.getSeconds()
+        }
+
+        for(const k in newTime){
+          if(!(oldTime[k] && newTime[k]===oldTime[k])){
+            if(!(oldTime[k] && oldTime[k].substring(0,1) === newTime[k].substring(0,1))){
+              numChange('#clock>#'+k+'>.num:first-child', newTime[k].substring(0,1))
+            }
+            numChange('#clock>#'+k+'>.num:last-child', newTime[k].substring(1,2))
+            oldTime[k] = newTime[k]
+          }
+        }
+        const sepSelector = isShort ? '#clock>#hour-min' : '#clock>#min-sec'
+        const nowText = document.querySelector(sepSelector).innerText
+        document.querySelector(sepSelector).innerText = nowText==='' ? ':' : ''
+      }
+      timerChecker()
+      window.setInterval(timerChecker, 1000)
+    }
+  </script>
+</body>
+</html>

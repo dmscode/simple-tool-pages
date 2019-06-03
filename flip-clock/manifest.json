@@ -1,0 +1,7 @@
+{
+  "name": "Flip Clock",
+  "short_name": "Flip Clock",
+  "start_url": "/flip-clock/",
+  "display": "fullscreen",
+  "orientation": "landscape"
+}

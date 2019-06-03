@@ -25,7 +25,7 @@
 </head>
 <body>
   <canvas id="canvas"></canvas>
-  <img src="src/Coffee-Time.png" id="show">
+  <img src="" id="show">
   【<a href="#" id="link">点此下载图片</a>】
   <div id="input">
 
@@ -57,13 +57,25 @@
       for(let i=0; i<10000; i++){
         const sx = +(Math.random() * (w+400) - 200).toFixed(0)
         const sy = +(Math.random() * (h+400) - 200).toFixed(0)
-        let ex = +(Math.random() * (w+400) - 200).toFixed(0)
-        let ey = +(Math.random() * (h+400) - 200).toFixed(0)
-        ex = Math.abs(ex-sx)>50 ? (ex<sx ? sx-Math.random()*50 : sx+Math.random()*50) : ex
-        ey = Math.abs(ey-sy)>50 ? (ey<sy ? sy-Math.random()*50 : sy+Math.random()*50) : ey
+
+        const points = [{x: sx, y: sy}]
+        const lineTimes = Math.random()>0.5 ? 2 : 3
+        for(let i=0; i<lineTimes; i++){
+          const ex = +(Math.random() * 100).toFixed(0)
+          const ey = +(Math.random() * 100).toFixed(0)
+          const lastPoint = points[points.length-1]
+          points.push({
+            x: +(Math.random()*2-1).toFixed() * ex +lastPoint.x,
+            y: +(Math.random()*2-1).toFixed() * ey +lastPoint.y,
+          })
+        }
+
         ctx.beginPath()
-        ctx.moveTo(sx, sy)
-        ctx.lineTo(ex, ey)
+        if(lineTimes===2){
+          ctx.quadraticCurveTo(points[0].x, points[0].y, points[1].x, points[1].y)
+        }else{
+          ctx.bezierCurveTo(points[0].x, points[0].y, points[1].x, points[1].y, points[2].x, points[2].y)
+        }
         ctx.lineWidth = 1.0
         ctx.strokeStyle = 'rgba(209, 162, 80, '+(Math.random()/3).toFixed(2)+')'
         ctx.stroke()
