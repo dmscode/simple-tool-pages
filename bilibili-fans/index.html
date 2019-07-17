@@ -78,7 +78,12 @@
     const elScript = document.getElementById('script')
     const elSep = document.getElementById('sep')
     // 获取用户 id
-    const userID = window.location.hash.replace(/^#/, '')
+    let userID = window.location.hash.replace(/^#/, '')
+    if(userID.length){
+      localStorage.setItem('userID', userID)
+    }else if(localStorage.getItem('userID')){
+      userID = localStorage.getItem('userID')
+    }
     // 显示头像和粉丝数
     const showFansCount = (json)=>{
       elFans.innerText = Number( json.data.follower ).toLocaleString()
