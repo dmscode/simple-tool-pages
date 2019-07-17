@@ -82,7 +82,7 @@
     // 显示头像和粉丝数
     const showFansCount = (json)=>{
       elFans.innerText = Number( json.data.follower ).toLocaleString()
-      elAvatar.src = json.data.card.face
+      elAvatar.src = json.data.card.face.replace(/^http:/,'https:')
     }
     // 创建数据地址并添加元素
     let elScriptChild
@@ -98,7 +98,7 @@
       elScript.removeChild(elScriptChild)
       appendScript()
     }
-    window.setInterval(getData, 5000)
+    window.setInterval(getData, 60000)
     // 页面元素定位
     const resize = ()=>{
       elFans.style.fontSize = document.getElementById('main').clientWidth*0.22+'px'
