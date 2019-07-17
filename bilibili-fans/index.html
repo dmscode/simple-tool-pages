@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="referrer" content="no-referrer"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Bilibili Fans.</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    @font-face {
+      font-family: 'number';
+      src:url('clock-number.ttf');
+    }
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+      background-color: #26323B;
+      background-color: black;
+      font-family: 'number';
+      font-size: 16vw;
+    }
+    #main {
+      display: flex;
+      height: 100vh;
+      max-width: 200vh;
+      margin: 0 auto;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      color: #FCFCFD;
+    }
+    #main > * {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: nowrap;
+    }
+    #logo {
+      width: 100vw;
+      flex-wrap: wrap;
+    }
+    #logo > img {
+      height: 20vmin;
+    }
+    #logo > #sep {
+      padding: 0 8vmin;
+    }
+    #logo > #avatar {
+      border-radius: 50%;
+    }
+    #fans {
+      line-height: 1em;
+      color: #CCCCCE;
+      margin-top: 8vmin;
+    }
+    #script {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="main">
+    <div id="logo">
+      <img src="bilibili.png" alt="">
+      <div id="sep"></div>
+      <img id="avatar" alt="">
+    </div>
+    <div id="fans"></div>
+    <div id="script"></div>
+  </div>
+  <script>
+    // 初始化元素常量
+    const elAvatar = document.getElementById('avatar')
+    const elFans = document.getElementById('fans')
+    const elScript = document.getElementById('script')
+    const elSep = document.getElementById('sep')
+    // 获取用户 id
+    const userID = window.location.hash.replace(/^#/, '')
+    // 显示头像和粉丝数
+    const showFansCount = (json)=>{
+      elFans.innerText = Number( json.data.follower ).toLocaleString()
+      elAvatar.src = json.data.card.face
+    }
+    // 创建数据地址并添加元素
+    let elScriptChild
+    const appendScript = ()=>{
+      const url = "https://jsonp.afeld.me/?callback=showFansCount&url=https%3A%2F%2Fapi.bilibili.com%2Fx%2Fweb-interface%2Fcard%3Fmid%3D"+userID+'&spam='+Number(new Date)
+      elScriptChild = document.createElement('script')
+      elScriptChild.setAttribute('src', url)
+      elScript.appendChild(elScriptChild)
+    }
+    appendScript()
+    // 重复数据获取操作
+    const getData = ()=>{
+      elScript.removeChild(elScriptChild)
+      appendScript()
+    }
+    window.setInterval(getData, 5000)
+    // 页面元素定位
+    const resize = ()=>{
+      elFans.style.fontSize = document.getElementById('main').clientWidth*0.22+'px'
+      if(window.innerHeight > window.innerWidth){
+        elSep.style.padding = '5vh 50%'
+      }else{
+        elSep.style.padding = '0 8vmin'
+      }
+    }
+    resize()
+    window.onresize = resize
+  </script>
+</body>
+</html>
