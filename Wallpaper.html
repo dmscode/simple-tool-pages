@@ -14,36 +14,25 @@
       overflow: hidden;
     }
     #wallpaper {
-      width: calc(100vw + 24px);
-      height: calc(100vh + 24px);
-      margin: -12px;
+      width: 100vw;
+      height: 100vh;
       background-color: #233338;
-      /* background-image: url('https://source.unsplash.com/random/1390x792/'); */
-      /* background-size: cover; */
-      background-position: center top;
+      background-position: center center;
       position: relative;
+      overflow: hidden;
     }
-    #wallpaper:before{
-      content: "";
-      width: 100%;
-      height: 100%;
+    #taskbar {
       position: absolute;
-      left: 0;
-      bottom: 0;
       background: inherit;
-      filter: blur(12px);
+      overflow: hidden;
+    }
+    #taskbar-bg{
+      content: "";
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      background: inherit;
       z-index: 2;
-    }
-    #wallpaper:after{
-      content: "";
-      width: 100%;
-      height: calc(100% - 52px);
-      position: absolute;
-      left: 0;
-      top: 0;
-      background: inherit;
-      box-shadow: -2px -20px 15px -13px rgba(0, 0, 0, 0.1) inset;
-      z-index: 4;
     }
     #change-wall-paper {
       position: absolute;
@@ -63,24 +52,88 @@
 </head>
 <body>
   <button id="change-wall-paper"></button>
-  <div id="wallpaper"></div>
+  <div id="wallpaper">
+    <div id="taskbar">
+      <div id="taskbar-bg"></div>
+    </div>
+  </div>
   <script>
-    let timerHandler
-    let counter = 0
+    const blurWidth = 12  // 任务栏背景模糊半径
+    const taskbarSide = 'bottom'  // 任务栏方向
+    const taskbarHeight = 40  // 任务栏高度
+    const wpEl = document.getElementById('wallpaper')
+    const taskbar = document.getElementById('taskbar')
+    const taskbarBG = document.getElementById('taskbar-bg')
+    const changeButton = document.getElementById('change-wall-paper')
+    const widthStyle = 'calc(100vw + '+blurWidth*2+'px)'
+    const heightStyle = 'calc(100vh + '+blurWidth*2+'px)'
+    const marginStyle = '-'+blurWidth+'px'
+    wpEl.style.width = widthStyle
+    wpEl.style.height = heightStyle
+    wpEl.style.margin = marginStyle
+    taskbarBG.style.width = widthStyle
+    taskbarBG.style.height = heightStyle
+    taskbarBG.style.filter = 'blur('+blurWidth+'px)'
+    switch (taskbarSide) {
+      case 'bottom':
+        taskbar.style.width = widthStyle
+        taskbar.style.height = taskbarHeight+'px'
+        taskbar.style.left = 0
+        taskbar.style.bottom = blurWidth+'px'
+        taskbar.style.boxShadow = '0 -20px 15px -13px rgba(0, 0, 0, 0.1)'
+        taskbarBG.style.left = 0
+        taskbarBG.style.bottom = marginStyle
+        break;
+      case 'left':
+        taskbar.style.width = taskbarHeight+'px'
+        taskbar.style.height = heightStyle
+        taskbar.style.left = blurWidth+'px'
+        taskbar.style.top = 0
+        taskbar.style.boxShadow = '20px 0 15px -13px rgba(0, 0, 0, 0.1)'
+        taskbarBG.style.left = marginStyle
+        taskbarBG.style.top = 0
+        break;
+      case 'top':
+        taskbar.style.width = widthStyle
+        taskbar.style.height = taskbarHeight+'px'
+        taskbar.style.left = 0
+        taskbar.style.top = blurWidth+'px'
+        taskbar.style.boxShadow = '0 20px 15px -13px rgba(0, 0, 0, 0.1)'
+        taskbarBG.style.left = 0
+        taskbarBG.style.top = marginStyle
+        changeButton.style.top = taskbarHeight+'px'
+        break;
+      case 'right':
+        taskbar.style.width = taskbarHeight+'px'
+        taskbar.style.height = heightStyle
+        taskbar.style.right = blurWidth+'px'
+        taskbar.style.top = 0
+        taskbar.style.boxShadow = '-20px 0 15px -13px rgba(0, 0, 0, 0.1)'
+        taskbarBG.style.right = marginStyle
+        taskbarBG.style.top = 0
+        changeButton.style.right = taskbarHeight+'px'
+        break;
+    
+      default:
+        taskbar.style.display = 'none'
+        break;
+    }
+
+    let timerHandler  // 计时器句柄
+    let counter = 0 // 刷新计数器
     const changeWallPaper = function(){
-      const wpEl = document.getElementById('wallpaper')
-      const wpWidth  = wpEl.offsetWidth+24
-      const wpHeight = wpEl.offsetHeight+24
-      const imgUrl = 'https://source.unsplash.com/random/'+wpWidth+'x'+wpHeight + '.0'+counter+'1'
+      const wpWidth  = wpEl.offsetWidth + blurWidth*2 + Math.floor(counter/100)
+      const wpHeight = wpEl.offsetHeight + blurWidth*2 + counter%100
+      const imgUrl = 'https://source.unsplash.com/random/'+wpWidth+'x'+wpHeight
       wpEl.dataset.counter = counter
       const tempImg = new Image()
       if(+wpEl.dataset.counter !== counter) return
-      document.getElementById('change-wall-paper').style.border = '6px solid rgba(255, 196, 0, 0.2)'
-      document.getElementById('change-wall-paper').style.backgroundColor = 'rgba(255, 196, 0, 0.6)'
+      changeButton.style.border = '6px solid rgba(255, 196, 0, 0.2)'
+      changeButton.style.backgroundColor = 'rgba(255, 196, 0, 0.6)'
       tempImg.onload = function() {
         wpEl.style.backgroundImage = 'url("'+imgUrl+'")'
-        document.getElementById('change-wall-paper').style.border = '6px solid rgba(23, 196, 0, 0.1)'
-        document.getElementById('change-wall-paper').style.backgroundColor = 'rgba(23, 196, 0, 0.2)'
+        changeButton.style.border = '6px solid rgba(23, 196, 0, 0.1)'
+        changeButton.style.backgroundColor = 'rgba(23, 196, 0, 0.2)'
       }
       tempImg.src = imgUrl;
       counter++
@@ -89,8 +142,7 @@
     }
     window.onload=function(){
       changeWallPaper()
-      document.getElementById('change-wall-paper').onclick = changeWallPaper
-      
+      changeButton.onclick = changeWallPaper
     }
   </script>
 </body>
