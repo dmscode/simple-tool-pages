@@ -72,17 +72,18 @@
       const wpWidth  = wpEl.offsetWidth+24
       const wpHeight = wpEl.offsetHeight+24
       const imgUrl = 'https://source.unsplash.com/random/'+wpWidth+'x'+(wpHeight + counter%2)
-      counter++
+      wpEl.dataset.counter = counter
       const tempImg = new Image()
+      if(+wpEl.dataset.counter !== counter) return
       document.getElementById('change-wall-paper').style.border = '6px solid rgba(255, 196, 0, 0.2)'
       document.getElementById('change-wall-paper').style.backgroundColor = 'rgba(255, 196, 0, 0.6)'
       tempImg.onload = function() {
         wpEl.style.backgroundImage = 'url("'+imgUrl+'")'
         document.getElementById('change-wall-paper').style.border = '6px solid rgba(23, 196, 0, 0.1)'
         document.getElementById('change-wall-paper').style.backgroundColor = 'rgba(23, 196, 0, 0.2)'
-        tempImg.src = ''
       }
       tempImg.src = imgUrl;
+      counter++
       window.clearTimeout(timerHandler)
       timerHandler = window.setTimeout( changeWallPaper, 9e5)
     }
