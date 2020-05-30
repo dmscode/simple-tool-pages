@@ -17,6 +17,7 @@
       width: calc(100vw + 24px);
       height: calc(100vh + 24px);
       margin: -12px;
+      background-color: #233338;
       /* background-image: url('https://source.unsplash.com/random/1390x792/'); */
       /* background-size: cover; */
       background-position: center top;
@@ -65,11 +66,13 @@
   <div id="wallpaper"></div>
   <script>
     let timerHandler
+    let counter = 0
     const changeWallPaper = function(){
       const wpEl = document.getElementById('wallpaper')
       const wpWidth  = wpEl.offsetWidth+24
       const wpHeight = wpEl.offsetHeight+24
-      const imgUrl = 'https://source.unsplash.com/random/'+wpWidth+'x'+wpHeight+'/?spam='+(new Date())*1
+      const imgUrl = 'https://source.unsplash.com/random/'+wpWidth+'x'+(wpHeight + counter%2)
+      counter++
       const tempImg = new Image()
       document.getElementById('change-wall-paper').style.border = '6px solid rgba(255, 196, 0, 0.2)'
       document.getElementById('change-wall-paper').style.backgroundColor = 'rgba(255, 196, 0, 0.6)'
@@ -77,6 +80,7 @@
         wpEl.style.backgroundImage = 'url("'+imgUrl+'")'
         document.getElementById('change-wall-paper').style.border = '6px solid rgba(23, 196, 0, 0.1)'
         document.getElementById('change-wall-paper').style.backgroundColor = 'rgba(23, 196, 0, 0.2)'
+        tempImg.src = ''
       }
       tempImg.src = imgUrl;
       window.clearTimeout(timerHandler)
