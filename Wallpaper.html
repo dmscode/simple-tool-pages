@@ -59,22 +59,33 @@
   </div>
   <img src="http://hits.dwyl.com/dmscode/simple-tool-pages/Wallpaper.svg" alt="" style="display: none;">
   <script>
-    const blurWidth = 12  // 任务栏背景模糊半径
-    const taskbarSide = 'bottom'  // 任务栏方向
-    const taskbarHeight = 40  // 任务栏高度
+    const getQuerys = new Object;
+    window.location.search.split(/[\?&]/g).forEach(get=>{
+      if(/=/.test(get)){
+        const getArr = get.split(/=/)
+        getQuerys[getArr[0]] = decodeURIComponent(getArr[1])
+      }
+    })
+    const blurWidth = isNaN(+getQuerys['blur']) ? 0 : +getQuerys['blur']  // 任务栏背景模糊半径
+    const taskbarSide = getQuerys['taskbarside']  // 任务栏方向
+    const taskbarHeight = isNaN(+getQuerys['taskbarheight']) ? 0 : +getQuerys['taskbarheight']  // 任务栏高度
+
     const wpEl = document.getElementById('wallpaper')
     const taskbar = document.getElementById('taskbar')
     const taskbarBG = document.getElementById('taskbar-bg')
     const changeButton = document.getElementById('change-wall-paper')
+
     const widthStyle = 'calc(100vw + '+blurWidth*2+'px)'
     const heightStyle = 'calc(100vh + '+blurWidth*2+'px)'
     const marginStyle = '-'+blurWidth+'px'
+
     wpEl.style.width = widthStyle
     wpEl.style.height = heightStyle
     wpEl.style.margin = marginStyle
     taskbarBG.style.width = widthStyle
     taskbarBG.style.height = heightStyle
     taskbarBG.style.filter = 'blur('+blurWidth+'px)'
+
     switch (taskbarSide) {
       case 'bottom':
         taskbar.style.width = widthStyle
